@@ -1,5 +1,5 @@
 body {
-  background-image: url("assets/sky.gif");
+  background-image: url("assets/star2.jpg");
   background-size: cover;
   height: 100vh;
 }
@@ -44,9 +44,9 @@ a {
     color: red;
   }
   50% {
-    color: green;
+    color: blue;
   }
   100% {
-    color: blue;
+    color: black;
   }
 }
