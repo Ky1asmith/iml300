@@ -2,6 +2,8 @@ body {
   background-image: url("assets/star2.jpg");
   background-size: cover;
   height: 100vh;
+  font-family: "Bitcount Ink";
+  
 }
 
 img {
@@ -36,7 +38,21 @@ a {
 }
 
 #p1 {
+  color: rgba(156, 9, 9, 0.93);
+}
+
+#album-image {
+  width: 500px;
+  left: 200px;
+}
+
+#p2 {
   animation: coolAnimation 5s infinite;
+}
+
+#p2 {
+  width: 500px;
+  left: 200px;
 }
 
 @keyframes coolAnimation {
