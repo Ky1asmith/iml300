@@ -1,4 +1,34 @@
 body {
-    background-color: green;
+    background-color: black;
+}
 
+h1{
+    color:aqua
+}
+.carousel {
+ height:100% auto;
+width: 100% auto;
+display:block;
+border: 5px solid white;
+overflow-x: auto;
+overflow-y: auto;
+}
+
+.group{
+    display:flex;
+    align-items:center;
+    justify-content: center;
+    gap: 1em;
+    animation:spin 15s infinite linear;
+}
+.card img{
+width:100px;
+object-fit: cover;
+}
+@keyframes spin {
+    from {translate: 0;}
+    to{translate: -100%;}
+}
+p{
+color:aqua
 }
