@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Off-Peak — fashion sites with room to breathe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Archivo:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#2B1B4D;
+    --paper:#F1EAFF;
+    --paper-2:#FFFFFF;
+    --marigold:Black;
+    --fuchsia:purple;
+    --jade:#00A07A;
+    --tangerine:#FF5A2D;
+    --cobalt:#2F4BE0;
+    --lilac:#B490FF;
+    --edge:2px solid var(--ink);
+    --shadow:6px 6px 0 var(--ink);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:16px;
+    line-height:1.55;
+  }
+  a{color:inherit}
+  h1,h2,h3{font-family:"Bricolage Grotesque","Archivo",system-ui,sans-serif;margin:0;line-height:.95;letter-spacing:-.02em}
+  :focus-visible{outline:3px solid var(--cobalt);outline-offset:3px}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+  /* ---------- hero ---------- */
+  header.hero{background:var(--marigold);border-bottom:var(--edge);padding:34px 0 26px}
+  .hero h1{font-size:clamp(46px,9vw,108px);font-weight:800;max-width:14ch}
+  .hero h1 em{font-style:normal;-webkit-text-stroke:2px var(--ink);color:transparent}
+  .hero p.lede{max-width:52ch;font-size:clamp(16px,2vw,19px);margin:16px 0 0}
+
+  /* ---------- the scale ---------- */
+  .scale{margin-top:30px;background:var(--paper-2);border:var(--edge);box-shadow:var(--shadow);padding:20px 22px 12px}
+  .scale-head{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+  .scale-head h2{font-size:20px;font-weight:600}
+  .scale-count{font-size:15px;background:var(--lilac);border:var(--edge);padding:3px 10px}
+  .plot{position:relative;height:104px;margin:14px 0 2px}
+  .axis{position:absolute;left:0;right:0;top:64px;height:4px;background:var(--ink)}
+  .band{position:absolute;top:56px;height:20px;background:var(--marigold);opacity:.55}
+  .dot{position:absolute;top:24px;width:16px;height:16px;border-radius:50%;border:2px solid var(--ink);transform:translate(-50%,0);cursor:pointer;padding:0;background:var(--jade);transition:transform .12s ease}
+  .dot[data-out="1"]{background:var(--paper);opacity:.45}
+  .dot:hover,.dot:focus-visible{transform:translate(-50%,-6px) scale(1.25);z-index:5}
+  .dot .tip{position:absolute;bottom:130%;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;white-space:nowrap;padding:3px 7px;opacity:0;pointer-events:none;font-family:"Archivo",sans-serif}
+  .dot:hover .tip,.dot:focus-visible .tip{opacity:1}
+  .ticks{position:absolute;left:0;right:0;top:76px;height:24px;font-size:12px}
+  .ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+  input[type=range].thumb{
+    -webkit-appearance:none;appearance:none;position:absolute;left:-2px;right:-2px;width:calc(100% + 4px);top:52px;height:28px;background:none;margin:0;pointer-events:none;
+  }
+  input[type=range].thumb::-webkit-slider-thumb{-webkit-appearance:none;pointer-events:auto;width:18px;height:28px;background:var(--fuchsia);border:var(--edge);cursor:ew-resize}
+  input[type=range].thumb::-moz-range-thumb{pointer-events:auto;width:18px;height:28px;background:var(--fuchsia);border:var(--edge);border-radius:0;cursor:ew-resize}
+  .band-label{font-size:15px;padding-top:6px;border-top:2px dotted var(--ink);margin-top:4px}
+
+  /* ---------- controls ---------- */
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:22px 0 6px}
+  .chip{font:inherit;font-size:14px;background:var(--paper-2);border:var(--edge);padding:6px 13px;cursor:pointer}
+  .chip[aria-pressed="true"]{background:var(--ink);color:#fff}
+  .search{font:inherit;padding:8px 12px;border:var(--edge);background:var(--paper-2);min-width:210px;flex:1}
+  .sortsel{font:inherit;padding:8px 10px;border:var(--edge);background:var(--paper-2)}
+
+  /* ---------- cards ---------- */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:20px;padding:18px 0 60px}
+  .card{background:var(--paper-2);border:var(--edge);box-shadow:var(--shadow);display:flex;flex-direction:column}
+  .card .band-top{height:14px;border-bottom:var(--edge)}
+  .card .body{padding:15px 16px 16px;display:flex;flex-direction:column;gap:9px;flex:1}
+  .card h3{font-size:25px;font-weight:600}
+  .card .kicker{font-size:13px;letter-spacing:.01em}
+  .card .desc{font-size:15px;margin:0}
+  .meters{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+  .pill{font-size:12.5px;border:2px solid var(--ink);padding:2px 8px}
+  .bar{height:12px;border:var(--edge);background:var(--paper);position:relative;overflow:hidden}
+  .bar i{position:absolute;inset:0 auto 0 0;display:block}
+  .more{border-top:2px dotted var(--ink);padding-top:10px;font-size:14.5px;display:none}
+  .card[data-open="1"] .more{display:block}
+  .more dt{font-weight:700;margin-top:7px}
+  .more dd{margin:0}
+  .row{display:flex;gap:8px;margin-top:auto;padding-top:4px;flex-wrap:wrap}
+  .btn{font:inherit;font-size:14px;border:var(--edge);background:var(--paper-2);padding:7px 12px;cursor:pointer;text-decoration:none;display:inline-block}
+  .btn.go{background:var(--marigold)}
+  .btn.save[aria-pressed="true"]{background:var(--fuchsia);color:#fff}
+  .empty{grid-column:1/-1;border:2px dashed var(--ink);padding:28px;text-align:center}
+
+  /* ---------- feedback ---------- */
+  .feedback{background:var(--marigold);color:#fff;border-top:var(--edge);border-bottom:var(--edge);padding:44px 0}
+  .feedback h2{font-size:clamp(30px,5vw,50px);font-weight:800;max-width:18ch}
+  .feedback p.sub{max-width:56ch;margin:14px 0 0}
+  .fb-cols{display:grid;grid-template-columns:1.1fr .9fr;gap:26px;margin-top:26px}
+  .panel{background:var(--paper-2);color:var(--ink);border:var(--edge);box-shadow:6px 6px 0 #14104a;padding:18px}
+  .panel h3{font-size:20px;font-weight:600;margin-bottom:10px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:14px;font-weight:700;margin-bottom:5px}
+  .field input,.field textarea{font:inherit;width:100%;padding:9px 11px;border:var(--edge);background:var(--paper);color:var(--ink)}
+  .field textarea{min-height:92px;resize:vertical}
+  .stars{display:flex;gap:6px}
+  .star{font:inherit;font-size:24px;line-height:1;background:none;border:none;cursor:pointer;padding:2px;color:var(--ink);opacity:.3}
+  .star[data-on="1"]{opacity:1;color:var(--fuchsia)}
+  .tagrow{display:flex;flex-wrap:wrap;gap:7px}
+  .submit{font:inherit;font-weight:700;font-size:16px;background:var(--jade);color:#fff;border:var(--edge);padding:11px 20px;cursor:pointer;box-shadow:4px 4px 0 var(--ink)}
+  .submit:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+  .note{font-size:13px;margin-top:10px}
+  .tally{display:flex;flex-direction:column;gap:9px;margin-bottom:16px}
+  .tally-row{display:grid;grid-template-columns:1fr 46px;gap:9px;align-items:center;font-size:14px}
+  .notes{display:flex;flex-direction:column;gap:11px;max-height:330px;overflow:auto}
+  .noteitem{border-left:6px solid var(--lilac);padding:6px 0 6px 11px;font-size:14.5px}
+  .noteitem b{display:block;font-size:13px}
+  .status{font-size:14px;margin-top:10px;min-height:20px;font-weight:700}
+
+  footer{padding:36px 0 60px;font-size:14px}
+  footer h2{font-size:22px;font-weight:600;margin-bottom:10px}
+  footer p{max-width:70ch}
+
+  @media (max-width:760px){
+    .fb-cols{grid-template-columns:1fr}
+    .plot{height:118px}
+    .hero h1{max-width:100%}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important;scroll-behavior:auto!important}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <h1>Good fashion sites, <em>quiet</em> traffic</h1>
+    <p class="lede">Every site here has a real audience and a real following — just not a stampede. Drag the handles to pick how obscure you want to go.</p>
+
+    <div class="scale">
+      <div class="scale-head">
+        <h2>Estimated monthly visits</h2>
+        <span class="scale-count" id="count">—</span>
+      </div>
+      <div class="plot" id="plot">
+        <div class="band" id="bandFill"></div>
+        <div class="axis"></div>
+        <div class="ticks" id="ticks"></div>
+        <input type="range" class="thumb" id="lo" min="0" max="100" value="0" step="1" aria-label="Lowest monthly visits">
+        <input type="range" class="thumb" id="hi" min="0" max="100" value="100" step="1" aria-label="Highest monthly visits">
+      </div>
+      <p class="band-label" id="bandLabel"></p>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="controls">
+    <input class="search" id="q" type="search" placeholder="Search a name, a vibe, a country…" aria-label="Search sites">
+    <select class="sortsel" id="sort" aria-label="Sort sites">
+      <option value="visits-asc">Quietest first</option>
+      <option value="visits-desc">Busiest first</option>
+      <option value="az">A to Z</option>
+      <option value="saved">Saved first</option>
+    </select>
+  </div>
+  <div class="controls" id="chips" style="padding-top:4px"></div>
+  <main class="grid" id="grid"></main>
+</div>
+
+<section class="feedback" id="feedback">
+  <div class="wrap">
+    <h2>Tell me what this site is missing</h2>
+    <p class="sub">This is a first pass. If a card is wrong, a number looks off, or you know a shop that belongs here, say so — notes are shared with everyone who opens this page, so leave out anything private.</p>
+    <div class="fb-cols">
+      <div class="panel">
+        <h3>Leave a note</h3>
+        <div class="field">
+          <label id="ratelabel">How useful is this right now?</label>
+          <div class="stars" id="stars" role="group" aria-labelledby="ratelabel"></div>
+        </div>
+        <div class="field">
+          <label>What would help most? Pick any.</label>
+          <div class="tagrow" id="tags"></div>
+        </div>
+        <div class="field">
+          <label for="fbsite">Know a site that belongs here? (optional)</label>
+          <input id="fbsite" placeholder="Name or link">
+        </div>
+        <div class="field">
+          <label for="fbtext">Anything else</label>
+          <textarea id="fbtext" placeholder="What confused you, what you'd cut, what you'd add…"></textarea>
+        </div>
+        <div class="field">
+          <label for="fbname">Name or handle (optional)</label>
+          <input id="fbname" placeholder="Anonymous">
+        </div>
+        <button class="submit" id="send">Send feedback</button>
+        <p class="status" id="status" role="status"></p>
+      </div>
+      <div class="panel">
+        <h3>What people are asking for</h3>
+        <div class="tally" id="tally"></div>
+        <h3>Recent notes</h3>
+        <div class="notes" id="notes"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <h2>About the numbers</h2>
+    <p>Traffic figures are rough public estimates, not measured data — treat them as an order of magnitude, not a scoreboard. Small sites also swing hard month to month: one viral post can triple a shop's visits for a week. If a number here looks wrong to you, it probably is, and the form above is the place to say so.</p>
+  </div>
+</footer>
+
+<script>
+const SITES = [
+  {n:"The Folklore",u:"https://thefolklore.com",c:"Shop",v:60000,w:"New York / Lagos",d:"A storefront for African and diaspora designers who rarely get shelf space anywhere else.",why:"The curation is genuinely editorial — pieces are chosen, not aggregated.",look:"Tailoring and prints from Lagos, Accra and Nairobi labels."},
+  {n:"Garmentory",u:"https://www.garmentory.com",c:"Shop",v:350000,w:"Seattle",d:"One checkout across a thousand-odd independent boutiques and emerging designers.",why:"You get the stock of small physical stores without hunting each one down.",look:"End-of-season markdowns from boutiques that don't run big sales."},
+  {n:"Wolf & Badger",u:"https://www.wolfandbadger.com",c:"Shop",v:500000,w:"London / New York",d:"A marketplace built around emerging and ethically-made brands, with real shops in two cities.",why:"The busiest site on this list — it's here as the upper edge of 'still small'.",look:"Jewellery and accessories from one-person studios."},
+  {n:"Big Bud Press",u:"https://bigbudpress.com",c:"Shop",v:150000,w:"Los Angeles",d:"Loud unisex basics, every piece made in a single LA factory.",why:"Radical size range and a colour palette nobody else commits to.",look:"The jumpsuit, which sells out in rotation."},
+  {n:"Paloma Wool",u:"https://palomawool.com",c:"Shop",v:200000,w:"Barcelona",d:"Small-run clothes presented more like an art project than a catalogue.",why:"The lookbooks are worth the visit even if you buy nothing.",look:"Knitwear and printed tees in odd, careful colours."},
+  {n:"Collina Strada",u:"https://collinastrada.com",c:"Shop",v:80000,w:"New York",d:"Deadstock-and-recycled runway pieces with an unserious face and a serious supply chain.",why:"One of the few runway labels selling direct at this size.",look:"Upcycled one-offs listed as single quantities."},
+  {n:"Online Ceramics",u:"https://onlineceramics.com",c:"Shop",v:120000,w:"Los Angeles",d:"Hand-dyed graphic wear that started with Grateful Dead bootlegs and kept going.",why:"Drops sell out fast, so the site rewards regular checking.",look:"Dye work you can't fake industrially."},
+  {n:"Cawley Studio",u:"https://cawleystudio.com",c:"Shop",v:15000,w:"London",d:"Two people making slow, natural-fibre clothes in limited runs.",why:"Possibly the quietest genuinely-shoppable site here.",look:"Linen and wool pieces cut to last a decade."},
+  {n:"Kotn",u:"https://kotn.com",c:"Shop",v:250000,w:"Toronto / Cairo",d:"Egyptian cotton basics sourced straight from Nile Delta farms.",why:"Their supply-chain reporting is unusually specific.",look:"The tees, which are the whole argument."},
+  {n:"Eckhaus Latta",u:"https://eckhauslatta.com",c:"Shop",v:40000,w:"New York",d:"Experimental knitwear and denim from a label that treats fit as a question.",why:"A small direct store from a designer duo most stockists price up.",look:"Archive sale sections, when they appear."},
+
+  {n:"Marrkt",u:"https://www.marrkt.com",c:"Resale",v:80000,w:"Manchester",d:"Pre-owned menswear, photographed and graded properly instead of dumped in a feed.",why:"Condition notes are honest, which is rare in resale.",look:"Japanese and British workwear in good nick."},
+  {n:"James Veloria",u:"https://jamesveloria.com",c:"Resale",v:30000,w:"New York",d:"A Chinatown vintage shop with a tightly-edited online rail of 90s and 00s designer.",why:"Everything is one-of-one and actually in stock.",look:"Archive Mugler, Gaultier, Miu Miu."},
+  {n:"Vintage Fashion Guild",u:"https://vintagefashionguild.org",c:"Resale",v:80000,w:"Volunteer-run",d:"A label-dating resource that tells you what year a garment tag is from.",why:"The single most useful free tool for buying vintage online.",look:"The Label Resource and the fabric glossary."},
+
+  {n:"Vestoj",u:"http://vestoj.com",c:"Reading",v:15000,w:"London / Paris",d:"A journal of fashion writing that reads like anthropology, published rarely.",why:"No trends, no shopping, no ads — a full break from the feed.",look:"Back issues archived free on the site."},
+  {n:"SHOWstudio",u:"https://www.showstudio.com",c:"Reading",v:150000,w:"London",d:"Nick Knight's fashion-film archive, running since 2000 and still adding.",why:"Two decades of process footage you can't get anywhere else.",look:"Live panel discussions and the interview archive."},
+  {n:"PRESENT FOREVER",u:"https://presentforever.substack.com",c:"Reading",v:20000,w:"Netherlands",d:"One historian writing about independent brands with no ads and no affiliate links.",why:"Recommendations you can trust precisely because nobody's paying for them.",look:"The brand round-ups and history essays."},
+  {n:"The Cutting Class",u:"https://www.thecuttingclass.com",c:"Reading",v:50000,w:"Australia",d:"Close analysis of how designer garments are actually constructed.",why:"For anyone who wants to know why a sleeve hangs like that.",look:"Pattern breakdowns of runway looks."},
+  {n:"Fashion History Timeline",u:"https://fashionhistory.fitnyc.edu",c:"Reading",v:300000,w:"FIT, New York",d:"A peer-reviewed, open-access timeline of dress from antiquity onward.",why:"Free, sourced, and better than most paid references.",look:"Decade pages with annotated paintings and photographs."}
+];
+
+const CAT_COLOR = {Shop:"var(--fuchsia)", Resale:"var(--jade)", Reading:"var(--cobalt)"};
+const MINV = 8000, MAXV = 700000;
+const L0 = Math.log10(MINV), L1 = Math.log10(MAXV);
+const toPct = v => Math.max(0, Math.min(100, (Math.log10(v) - L0) / (L1 - L0) * 100));
+const toVal = p => Math.round(Math.pow(10, L0 + (p/100) * (L1 - L0)));
+const fmt = v => v >= 1000000 ? (v/1000000).toFixed(1)+"M" : Math.round(v/1000)+"K";
+
+/* ---------- storage with graceful fallback ---------- */
+const mem = {};
+const store = {
+  async get(k, shared){
+    try { const r = await window.storage.get(k, shared); return r ? r.value : null; }
+    catch(e){ return mem[k] ?? null; }
+  },
+  async set(k, val, shared){
+    try { const r = await window.storage.set(k, val, shared); if(!r) throw 0; mem[k]=val; return true; }
+    catch(e){ mem[k]=val; return false; }
+  }
+};
+
+/* ---------- state ---------- */
+let state = { lo:0, hi:100, q:"", cat:"All", sort:"visits-asc" };
+let saved = new Set();
+
+/* ---------- scale ---------- */
+const plot = document.getElementById("plot");
+const loEl = document.getElementById("lo"), hiEl = document.getElementById("hi");
+
+function drawDots(){
+  plot.querySelectorAll(".dot").forEach(d=>d.remove());
+  SITES.forEach((s,i)=>{
+    const b = document.createElement("button");
+    b.className="dot"; b.style.left = toPct(s.v)+"%";
+    b.style.background = CAT_COLOR[s.c];
+    b.style.top = (18 + (i%3)*13) + "px";
+    b.dataset.idx = i;
+    b.setAttribute("aria-label", s.n + ", about " + fmt(s.v) + " visits a month");
+    b.innerHTML = '<span class="tip">'+s.n+' · '+fmt(s.v)+'</span>';
+    b.addEventListener("click", ()=>{
+      const card = document.getElementById("card-"+i);
+      if(card){ card.dataset.open="1"; card.scrollIntoView({block:"center"}); card.querySelector("h3").focus?.(); }
+    });
+    plot.appendChild(b);
+  });
+  const t = document.getElementById("ticks");
+  t.innerHTML = "";
+  [10000,50000,200000,700000].forEach(v=>{
+    const s = document.createElement("span");
+    s.style.left = toPct(v)+"%"; s.textContent = fmt(v);
+    t.appendChild(s);
+  });
+}
+
+function syncBand(){
+  if(+loEl.value > +hiEl.value - 3){
+    if(document.activeElement === loEl) loEl.value = Math.max(0, +hiEl.value - 3);
+    else hiEl.value = Math.min(100, +loEl.value + 3);
+  }
+  state.lo = +loEl.value; state.hi = +hiEl.value;
+  const f = document.getElementById("bandFill");
+  f.style.left = state.lo + "%";
+  f.style.width = (state.hi - state.lo) + "%";
+  document.getElementById("bandLabel").textContent =
+    "Showing sites between about " + fmt(toVal(state.lo)) + " and " + fmt(toVal(state.hi)) + " visits a month.";
+  render();
+}
+
+loEl.addEventListener("input", syncBand);
+hiEl.addEventListener("input", syncBand);
+
+/* ---------- filters ---------- */
+const CATS = ["All","Shop","Resale","Reading","Saved"];
+const chips = document.getElementById("chips");
+CATS.forEach(c=>{
+  const b=document.createElement("button");
+  b.className="chip"; b.textContent=c; b.setAttribute("aria-pressed", c==="All");
+  b.addEventListener("click",()=>{
+    state.cat=c;
+    [...chips.children].forEach(x=>x.setAttribute("aria-pressed", x.textContent===c));
+    render();
+  });
+  chips.appendChild(b);
+});
+document.getElementById("q").addEventListener("input",e=>{state.q=e.target.value.toLowerCase();render();});
+document.getElementById("sort").addEventListener("change",e=>{state.sort=e.target.value;render();});
+
+/* ---------- cards ---------- */
+function render(){
+  const lo = toVal(state.lo), hi = toVal(state.hi);
+  let list = SITES.map((s,i)=>({...s,i})).filter(s=>{
+    if(s.v < lo*0.92 || s.v > hi*1.08) return false;
+    if(state.cat==="Saved" && !saved.has(s.n)) return false;
+    if(state.cat!=="All" && state.cat!=="Saved" && s.c!==state.cat) return false;
+    if(state.q){
+      const hay = (s.n+" "+s.d+" "+s.w+" "+s.c+" "+s.why+" "+s.look).toLowerCase();
+      if(!hay.includes(state.q)) return false;
+    }
+    return true;
+  });
+  const sorters = {
+    "visits-asc":(a,b)=>a.v-b.v, "visits-desc":(a,b)=>b.v-a.v,
+    "az":(a,b)=>a.n.localeCompare(b.n),
+    "saved":(a,b)=>(saved.has(b.n)-saved.has(a.n))||a.v-b.v
+  };
+  list.sort(sorters[state.sort]);
+
+  document.getElementById("count").textContent = list.length + " of " + SITES.length + " sites";
+  const visible = new Set(list.map(s=>s.i));
+  plot.querySelectorAll(".dot").forEach(d=>d.dataset.out = visible.has(+d.dataset.idx) ? "0" : "1");
+
+  const g = document.getElementById("grid");
+  if(!list.length){
+    g.innerHTML = '<div class="empty"><b>Nothing in this band.</b><br>Widen the handles or clear the search to bring sites back.</div>';
+    return;
+  }
+  g.innerHTML = list.map(s=>{
+    const col = CAT_COLOR[s.c];
+    const pct = toPct(s.v);
+    return `
+    <article class="card" id="card-${s.i}">
+      <div class="band-top" style="background:${col}"></div>
+      <div class="body">
+        <p class="kicker">${s.c} · ${s.w}</p>
+        <h3 tabindex="-1">${s.n}</h3>
+        <p class="desc">${s.d}</p>
+        <div class="meters">
+          <span class="pill" style="background:${col};color:#fff">~${fmt(s.v)} visits/mo</span>
+          <span class="pill">${pct < 35 ? "Deep cut" : pct < 65 ? "Cult following" : "Getting busy"}</span>
+        </div>
+        <div class="bar"><i style="width:${pct}%;background:${col}"></i></div>
+        <dl class="more">
+          <dt>Why it's here</dt><dd>${s.why}</dd>
+          <dt>What to look at</dt><dd>${s.look}</dd>
+        </dl>
+        <div class="row">
+          <a class="btn go" href="${s.u}" target="_blank" rel="noopener">Visit site</a>
+          <button class="btn expand" data-i="${s.i}">Details</button>
+          <button class="btn save" data-n="${s.n}" aria-pressed="${saved.has(s.n)}">${saved.has(s.n)?"Saved":"Save"}</button>
+        </div>
+      </div>
+    </article>`;
+  }).join("");
+
+  g.querySelectorAll(".expand").forEach(b=>b.addEventListener("click",()=>{
+    const c = document.getElementById("card-"+b.dataset.i);
+    c.dataset.open = c.dataset.open==="1" ? "0" : "1";
+    b.textContent = c.dataset.open==="1" ? "Hide details" : "Details";
+  }));
+  g.querySelectorAll(".save").forEach(b=>b.addEventListener("click", async ()=>{
+    const n=b.dataset.n;
+    saved.has(n) ? saved.delete(n) : saved.add(n);
+    b.setAttribute("aria-pressed", saved.has(n));
+    b.textContent = saved.has(n) ? "Saved" : "Save";
+    await store.set("offpeak:saved", JSON.stringify([...saved]), false);
+    if(state.cat==="Saved") render();
+  }));
+}
+
+/* ---------- feedback ---------- */
+const TAGS = ["More sites","Price ranges","Ships-to info","Photos of the clothes","Better search","Sort by vibe","Fix a number","Works badly on mobile"];
+let rating = 0, picked = new Set();
+
+const starsEl = document.getElementById("stars");
+for(let i=1;i<=5;i++){
+  const b=document.createElement("button");
+  b.className="star"; b.type="button"; b.textContent="★";
+  b.setAttribute("aria-label", i+" out of 5");
+  b.addEventListener("click",()=>{ rating=i; [...starsEl.children].forEach((s,j)=>s.dataset.on = j<i ? "1":"0"); });
+  starsEl.appendChild(b);
+}
+const tagsEl = document.getElementById("tags");
+TAGS.forEach(t=>{
+  const b=document.createElement("button");
+  b.className="chip"; b.type="button"; b.textContent=t; b.setAttribute("aria-pressed","false");
+  b.addEventListener("click",()=>{
+    picked.has(t)?picked.delete(t):picked.add(t);
+    b.setAttribute("aria-pressed", picked.has(t));
+  });
+  tagsEl.appendChild(b);
+});
+
+const KEY = "offpeak:feedback";
+
+async function loadFeedback(){
+  const raw = await store.get(KEY, true);
+  let all = [];
+  try { all = raw ? JSON.parse(raw) : []; } catch(e){ all = []; }
+  drawFeedback(all);
+  return all;
+}
+
+function drawFeedback(all){
+  const tally = document.getElementById("tally");
+  const counts = {};
+  all.forEach(f => (f.tags||[]).forEach(t => counts[t]=(counts[t]||0)+1));
+  const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const max = top.length ? top[0][1] : 1;
+  if(!top.length){
+    tally.innerHTML = '<p style="font-size:14px;margin:0">No requests yet. Pick a few tags and yours will be the first.</p>';
+  } else {
+    tally.innerHTML = top.map(([t,c])=>`
+      <div class="tally-row">
+        <div><div style="margin-bottom:3px">${t}</div>
+        <div class="bar"><i style="width:${Math.round(c/max*100)}%;background:var(--marigold)"></i></div></div>
+        <div style="text-align:right;font-weight:700">${c}</div>
+      </div>`).join("");
+  }
+  const notes = document.getElementById("notes");
+  const withText = all.filter(f=>f.text || f.site).slice(-12).reverse();
+  if(!withText.length){
+    notes.innerHTML = '<p style="font-size:14px;margin:0">Nothing written yet. The first note sets the tone.</p>';
+  } else {
+    notes.innerHTML = withText.map(f=>`
+      <div class="noteitem">
+        <b>${esc(f.name||"Anonymous")}${f.rating?" · "+"★".repeat(f.rating):""}</b>
+        ${f.text?esc(f.text):""}
+        ${f.site?`<div style="margin-top:4px;font-size:13.5px"><b style="display:inline">Suggested:</b> ${esc(f.site)}</div>`:""}
+      </div>`).join("");
+  }
+}
+const esc = s => String(s).replace(/[<>&"]/g, c => ({"<":"&lt;",">":"&gt;","&":"&amp;",'"':"&quot;"}[c]));
+
+document.getElementById("send").addEventListener("click", async ()=>{
+  const text = document.getElementById("fbtext").value.trim();
+  const site = document.getElementById("fbsite").value.trim();
+  const name = document.getElementById("fbname").value.trim();
+  const status = document.getElementById("status");
+  if(!rating && !picked.size && !text && !site){
+    status.textContent = "Add a rating, a tag or a note first.";
+    return;
+  }
+  status.textContent = "Saving…";
+  const all = await loadFeedback();
+  all.push({rating, tags:[...picked], text:text.slice(0,600), site:site.slice(0,120), name:name.slice(0,40), at:Date.now()});
+  const ok = await store.set(KEY, JSON.stringify(all.slice(-200)), true);
+  drawFeedback(all);
+  status.textContent = ok ? "Thanks — your note is on the board." : "Saved for this session only; shared storage isn't available here.";
+  document.getElementById("fbtext").value = "";
+  document.getElementById("fbsite").value = "";
+  picked.clear();
+  [...tagsEl.children].forEach(b=>b.setAttribute("aria-pressed","false"));
+  rating = 0;
+  [...starsEl.children].forEach(s=>s.dataset.on="0");
+});
+
+/* ---------- boot ---------- */
+(async function init(){
+  drawDots();
+  const s = await store.get("offpeak:saved", false);
+  if(s){ try { saved = new Set(JSON.parse(s)); } catch(e){} }
+  syncBand();
+  loadFeedback();
+})();
+</script>
+</body>
+</html>
